@@ -14,8 +14,6 @@ const defaultState = fromJS({
     email: '',
     password: '',
   },
-  history: {},
-  notifications: {},
   locations: {
     'București': {
       '-key': {
@@ -37,6 +35,7 @@ const defaultState = fromJS({
   editLocation: {
     open: false,
     key: '',
+    city: '',
     name: '',
     address: '',
     addressLink: '',
@@ -50,17 +49,12 @@ const defaultState = fromJS({
       longitudeDelta: 0,
     }
   },
-  settings: {
-    updated: false,
-    birthday: {},
-    sex: 0,
-    city: '',
-    location: '',
-    weight: '',
-    blood: 0,
-    rh: '',
-    needDonation: false,
-  },
+  users: {
+    'key123': {
+      name: '',
+      email: '',
+    }
+  }
 })
 
 export default (state = defaultState, action) => {
@@ -71,38 +65,22 @@ export default (state = defaultState, action) => {
       return state.set('user', fromJS(action.payload)).setIn(['user', 'signed'], true)
     case 'SIGN_OUT':
       return defaultState.setIn(['user', 'signed'], false)
-    case 'USER/CHANGE_NAME':
-      return state.setIn(['user', 'name'], action.payload).setIn(['settings', 'updated'], true)
-    case 'SETTINGS/CHANGE':
-      return state.setIn(['settings', action.payload.field], fromJS(action.payload.value)).setIn(['settings', 'updated'], true)
-    case 'SETTINGS/UPDATED':
-      return state.setIn(['settings', 'updated'], false)
     case 'CHANGE_LOGIN_DATA':
       return state.setIn(['login', action.payload.field], action.payload.value)
     case 'RESET_LOGIN_DATA':
       return state.set('login', defaultState.get('login'))
-    case 'HISTORY/SAVE':
-      return state.set('history', fromJS(action.payload))
-    case 'HISTORY/ADD':
-      return state.updateIn(['history', action.year], history => history.push(action.payload))
-    case 'HISTORY/RESET':
-      return state.set('history', defaultState.get('history'))
-    case 'NOTIFICATIONS/SAVE':
-      return state.set('notifications', fromJS(action.payload))
-    case 'NOTIFICATIONS/REMOVE':
-      return state.deleteIn(['notifications', action.payload])
-    case 'NOTIFICATIONS/RESET':
-      return state.set('notifications', defaultState.get('notifications'))
-    case 'SETTINGS/SAVE':
-      return state.set('settings', fromJS(action.payload))
-    case 'SETTINGS/RESET':
-      return state.set('settings', defaultState.get('settings'))
     case 'LOCATIONS/SAVE':
       return state.set('locations', fromJS(action.payload))
-    case 'EDIT_LOCATION/OPEN':
-      return state.setIn(['editLocation', 'open'], true)
-    case 'EDIT_LOCATION/CLOSE':
-      return state.setIn(['editLocation', 'open'], false)
+    case 'USERS/SAVE':
+      return state.set('users', fromJS(action.payload))
+    case 'EDIT_LOCATION/CHANGE':
+      return state.setIn(['editLocation', action.payload.field], action.payload.value)
+    case 'EDIT_LOCATION/CHANGE_IN':
+      return state.setIn(['editLocation', action.payload.field, action.payload.subfield], action.payload.value)
+    case 'EDIT_LOCATION/EDIT':
+      return state.set('editLocation', state.getIn(['locations', action.payload.city, action.payload.key])).setIn(['editLocation', 'city'], action.payload.city).setIn(['editLocation', 'key'], action.payload.key).setIn(['editLocation', 'open'], true)
+    case 'EDIT_LOCATION/RESET':
+      return state.set('editLocation', defaultState.get('editLocation'))
     default:
       return state
   }

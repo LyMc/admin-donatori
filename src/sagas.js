@@ -1,5 +1,5 @@
-import { call, put, take, takeEvery, takeLatest, select } from 'redux-saga/effects'
-import { loginData, registerData, userData, settingsData } from './selectors'
+import { call, put, take, takeLatest, select } from 'redux-saga/effects'
+import { loginData, editLocationData } from './selectors'
 import firebaseSaga from './firebase-saga'
 
 function* doLogin() {
@@ -33,25 +33,13 @@ function* syncUser() {
   }
 }
 function* signUp() {
-  const register = yield select(registerData)
+  //const register = yield select(registerData)
   try {
-    const user = yield call(firebaseSaga.register, register.email, register.password, register.name)
-    yield put({ type: 'SIGN_IN', payload: { name: user.displayName, email: user.email, uid: user.uid } })
+    yield console.log('sign up')
+    //const user = yield call(firebaseSaga.register, register.email, register.password, register.name)
+    //yield put({ type: 'SIGN_IN', payload: { name: user.displayName, email: user.email, uid: user.uid } })
   } catch (error) {
     console.log('error sign up', error)
-  }
-}
-function* fetchUserData() {
-  const user = yield select(userData)
-  try {
-    const data = yield call(firebaseSaga.get, '/user/' + user.uid)
-    if (data) {
-      yield put({ type: 'HISTORY/SAVE', payload: data.history || {} })
-      yield put({ type: 'NOTIFICATIONS/SAVE', payload: data.notifications || {} })
-      yield put({ type: 'SETTINGS/SAVE', payload: data.settings || {} })
-    }
-  } catch (error) {
-    console.log('error fetch data', error)
   }
 }
 function* fetchAppData() {
@@ -65,38 +53,41 @@ function* fetchAppData() {
     }
   }
 }
-function* removeData(data) {
-  const user = yield select(userData)
+function* fetchUsers() {
+  const channel = yield call(firebaseSaga.channel, '/user')
+  while (true) {
+    try {
+      const data = yield take(channel)
+      yield put({ type: 'USERS/SAVE', payload: data || {} })
+    } catch (error) {
+      console.log('error fetch data', error)
+    }
+  }
+}
+function* saveLocation() {
+  const location = yield select(editLocationData)
+  const path = '/app/locations/' + location.city + '/'
+  let data = { name: location.name }
+  if (location.address) data.address = location.address
+  if (location.addressLink) data.addressLink = location.addressLink
+  if (location.program) data.program = location.program
+  if (location.phone) data.phone = location.phone
+  if (location.link) data.link = location.link
+  if (location.initialRegion) data.initialRegion = location.initialRegion
+  yield put({ type: 'EDIT_LOCATION/RESET' })
   try {
-    yield call(firebaseSaga.delete, '/user/' + user.uid + '/' + data.payload.type + '/' + data.payload.key)
+    if (location.key) {
+      yield call(firebaseSaga.update, path + location.key, data)
+    } else {
+      yield call(firebaseSaga.create, path, data)
+    }
   } catch (error) {
     console.log('error fetch data', error)
   }
 }
-function* refresh() {
-  yield put({ type: 'FETCH_USER_DATA' })
-}
-function* saveSettings() {
-  const settings = yield select(settingsData)
-  delete settings.updated
-  const user = yield select(userData)
+function* removeLocation({ payload }) {
   try {
-    yield call(firebaseSaga.update, '/user/' + user.uid + '/settings/', settings)
-    yield put({ type: 'SETTINGS/UPDATED' })
-  } catch (error) {
-    console.log('error fetch data', error)
-  }
-}
-function* saveSchedule({ payload }) {
-  yield put({ type: 'SAVE_SETTINGS' })
-  const user = yield select(userData)
-  const settings = yield select(settingsData)
-  try {
-    yield call(firebaseSaga.create, '/user/' + user.uid + '/history/' + payload.year, {
-      title: 'Programare donație',
-      location: settings.location,
-      date: payload.date,
-    })
+    yield call(firebaseSaga.delete, '/app/locations/' + payload.city + '/' + payload.key)
   } catch (error) {
     console.log('error fetch data', error)
   }
@@ -107,12 +98,11 @@ export default function* rootSaga() {
   yield takeLatest('SYNC_USER', syncUser)
   yield takeLatest('DO_LOGOUT', doLogout)
   yield takeLatest('SIGN_UP', signUp)
-  yield takeLatest('FETCH_USER_DATA', fetchUserData)
   yield takeLatest('FETCH_APP_DATA', fetchAppData)
-  yield takeLatest('REFRESH', refresh)
-  yield takeLatest('SAVE_SETTINGS', saveSettings)
-  yield takeLatest('SAVE_SCHEDULE', saveSchedule)
-  yield takeEvery('REMOVE_DATA', removeData)
+  yield takeLatest('FETCH_USERS', fetchUsers)
+  yield takeLatest('SAVE_LOCATION', saveLocation)
+  yield takeLatest('REMOVE_LOCATION', removeLocation)
   yield put({ type: 'SYNC_USER' })
   yield put({ type: 'FETCH_APP_DATA' })
+  yield put({ type: 'FETCH_USERS' })
 }

@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom'
 
 import AppBar from 'material-ui/AppBar'
 import IconButton from 'material-ui/IconButton'
+import FlatButton from 'material-ui/FlatButton'
 import NavigationClose from 'material-ui/svg-icons/navigation/menu'
 import Drawer from 'material-ui/Drawer'
 import MenuItem from 'material-ui/MenuItem'
 
-export default ({ children, isDrawerOpen, toggleDrawer }) =>
+export default ({ children, isDrawerOpen, toggleDrawer, logout }) => (
   <div>
-    <Drawer open={ isDrawerOpen } onRequestChange={ toggleDrawer } containerStyle={{paddingTop: 64}}>
-      <Link to="/"><MenuItem>Acasă</MenuItem></Link>
-      <Link to="/locations"><MenuItem>Locații</MenuItem></Link>
+    <Drawer open={ isDrawerOpen } onRequestChange={ toggleDrawer } containerStyle={{ paddingTop: 64 }}>
+      <Link to="/" style={{ textDecoration: 'none' }}><MenuItem>Acasă</MenuItem></Link>
+      <Link to="/locations" style={{ textDecoration: 'none' }}><MenuItem>Locații</MenuItem></Link>
+      <Link to="/users" style={{ textDecoration: 'none' }}><MenuItem>Utilizatori</MenuItem></Link>
+      <FlatButton primary fullWidth onTouchTap={ logout } style={{position: 'absolute', bottom: 0}}>Logout</FlatButton>
     </Drawer>
     <AppBar
       title="Admin"
@@ -27,3 +30,4 @@ export default ({ children, isDrawerOpen, toggleDrawer }) =>
       { children }
     </div>
   </div>
+)

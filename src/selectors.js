@@ -24,8 +24,8 @@ export const loginData = createSelector(selectLogin, data => ({
 const selectLocations = state => state.get('locations')
 export const locationsData = createSelector(selectLocations, data => data)
 
-const selectSettings = state => state.get('settings')
-export const settingsData = createSelector(selectSettings, data => data.toJS())
-
 const selectEditLocation = state => state.get('editLocation')
 export const editLocationData = createSelector(selectEditLocation, data => data.toJS())
+
+const selectUsers = state => state.get('users')
+export const usersData = createSelector(selectUsers, data => data)
