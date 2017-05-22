@@ -10,7 +10,7 @@ import Link from 'material-ui/svg-icons/content/link'
 import Public from 'material-ui/svg-icons/social/public'
 
 export default ({ item, edit, remove }) => (
-  <Card style={{ marginBottom: 15 }}>
+  <Card style={{ marginBottom: 15, overflow: 'hidden' }}>
     <CardTitle
       title={ item.name }
       subtitle={ item.address }

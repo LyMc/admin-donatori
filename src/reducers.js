@@ -3,6 +3,8 @@ import { fromJS } from 'immutable'
 const defaultState = fromJS({
   app: {
     openDrawer: true,
+    width: 0,
+    height: 0,
   },
   user: {
     signed: null,
@@ -60,7 +62,9 @@ const defaultState = fromJS({
 export default (state = defaultState, action) => {
   switch (action.type) {
     case 'APP/TOGGLE_DRAWER':
-      return state.updateIn(['app', 'openDrawer'], openDrawer => !openDrawer)
+      return state.updateIn(['app', 'openDrawer'], openDrawer => action.payload === null ? !openDrawer : action.payload)
+    case 'APP/RESIZE_WINDOW':
+      return state.setIn(['app', 'width'], action.payload.width).setIn(['app', 'height'], action.payload.height)
     case 'SIGN_IN':
       return state.set('user', fromJS(action.payload)).setIn(['user', 'signed'], true)
     case 'SIGN_OUT':

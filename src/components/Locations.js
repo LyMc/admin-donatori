@@ -35,10 +35,10 @@ export default ({ locationsData, editLocationData, add, edit, remove, close, cha
       <TextField fullWidth floatingLabelText="Program" value={ editLocationData.program } onChange={(_, value) => change('program', value)} />
       <TextField fullWidth floatingLabelText="Telefon" value={ editLocationData.phone } onChange={(_, value) => change('phone', value)} />
       <TextField fullWidth floatingLabelText="Link" value={ editLocationData.link } onChange={(_, value) => change('link', value)} />
-      <TextField fullWidth floatingLabelText="Latitudine" value={ editLocationData.initialRegion.latitude } onChange={(_, value) => changeIn('initialRegion', 'latitude', value)} />
-      <TextField fullWidth floatingLabelText="Longitudine" value={ editLocationData.initialRegion.longitude } onChange={(_, value) => changeIn('initialRegion', 'longitude', value)} />
-      <TextField fullWidth floatingLabelText="Delta latitudine" value={ editLocationData.initialRegion.latitudeDelta } onChange={(_, value) => changeIn('initialRegion', 'latitudeDelta', value)} />
-      <TextField fullWidth floatingLabelText="Delta longitudine" value={ editLocationData.initialRegion.longitudeDelta } onChange={(_, value) => changeIn('initialRegion', 'longitudeDelta', value)} />
+      <TextField fullWidth floatingLabelText="Latitudine" value={ editLocationData.initialRegion.latitude } onChange={(_, value) => changeIn('initialRegion', 'latitude', +value)} />
+      <TextField fullWidth floatingLabelText="Longitudine" value={ editLocationData.initialRegion.longitude } onChange={(_, value) => changeIn('initialRegion', 'longitude', +value)} />
+      <TextField fullWidth floatingLabelText="Delta latitudine" value={ editLocationData.initialRegion.latitudeDelta } onChange={(_, value) => changeIn('initialRegion', 'latitudeDelta', +value)} />
+      <TextField fullWidth floatingLabelText="Delta longitudine" value={ editLocationData.initialRegion.longitudeDelta } onChange={(_, value) => changeIn('initialRegion', 'longitudeDelta', +value)} />
     </Dialog>
   </div>
 )

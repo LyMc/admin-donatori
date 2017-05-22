@@ -1,24 +1,18 @@
 import { createSelector } from 'reselect'
 
 const selectApp = state => state.get('app')
-export const isDrawerOpen = createSelector(
-  selectApp,
-  app => app.get('openDrawer')
-)
+export const isDrawerOpen = createSelector(selectApp, app => app.get('openDrawer'))
+export const windowData = createSelector(selectApp, app => ({ width: app.get('width'), height: app.get('height') }))
 
 const selectUser = state => state.get('user')
 export const userData = createSelector(selectUser, data => ({
-  signed: data.get('signed'),
-  name: data.get('name'),
-  email: data.get('email'),
-  uid: data.get('uid'),
+  signed: data.get('signed'), name: data.get('name'), email: data.get('email'), uid: data.get('uid'),
 }))
 export const isUserSignedIn = createSelector(userData, data => data.signed)
 
 const selectLogin = state => state.get('login')
 export const loginData = createSelector(selectLogin, data => ({
-  email: data.get('email'),
-  password: data.get('password'),
+  email: data.get('email'), password: data.get('password'),
 }))
 
 const selectLocations = state => state.get('locations')
