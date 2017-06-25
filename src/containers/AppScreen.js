@@ -1,16 +1,18 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { createStructuredSelector } from 'reselect'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom'
 
 import { isDrawerOpen, isUserSignedIn, windowData } from '../selectors'
 
 import Loading from '../components/Loading'
 import LoginScreen from './LoginScreen'
 import App from '../components/App'
-import HomeScreen from './HomeScreen'
-import LocationsScreen from './LocationsScreen'
-import UsersScreen from './UsersScreen'
+
+const AppRoute = connect(createStructuredSelector({ isDrawerOpen, windowData }), dispatch => ({
+  toggleDrawer: (payload = null) => dispatch({ type: 'APP/TOGGLE_DRAWER', payload }),
+  logout: () => dispatch({ type: 'DO_LOGOUT' }),
+}))(App)
 
 class AppScreen extends React.Component {
   constructor() {
@@ -35,25 +37,19 @@ class AppScreen extends React.Component {
   }
 
   render() {
-    const { isDrawerOpen, toggleDrawer, isUserSignedIn, windowData, logout } = this.props
-    return isUserSignedIn === null ? <Loading/> : isUserSignedIn ? (
-      <Router>
-        <App isDrawerOpen={ isDrawerOpen } toggleDrawer={ toggleDrawer } logout={ logout } windowData={ windowData }>
-          <Route exact path="/" component={HomeScreen}/>
-          <Route exact path="/locations" component={LocationsScreen}/>
-          <Route exact path="/users" component={UsersScreen}/>
-        </App>
-      </Router>
-    ) : <LoginScreen/>
+    if (this.props.isUserSignedIn === null) return <Loading/>
+    else if (this.props.isUserSignedIn === false) return <LoginScreen/>
+    else return (
+        <BrowserRouter>
+          <Route path="/" component={ AppRoute }/>
+        </BrowserRouter>
+      )
   }
 }
 
-const mapStateToProps = createStructuredSelector({
-  isDrawerOpen, isUserSignedIn, windowData,
-})
+const mapStateToProps = createStructuredSelector({ isUserSignedIn })
 const mapDispatchToProps = dispatch => ({
   toggleDrawer: (payload = null) => dispatch({ type: 'APP/TOGGLE_DRAWER', payload }),
-  logout: () => dispatch({ type: 'DO_LOGOUT' }),
   resizeWindow: (width, height) => dispatch({ type: 'APP/RESIZE_WINDOW', payload: { width, height } }),
 })
 

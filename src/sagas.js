@@ -54,7 +54,7 @@ function* fetchAppData() {
   }
 }
 function* fetchUsers() {
-  const channel = yield call(firebaseSaga.channel, '/user')
+  const channel = yield call(firebaseSaga.channel, '/users')
   while (true) {
     try {
       const data = yield take(channel)
@@ -103,6 +103,6 @@ export default function* rootSaga() {
   yield takeLatest('SAVE_LOCATION', saveLocation)
   yield takeLatest('REMOVE_LOCATION', removeLocation)
   yield put({ type: 'SYNC_USER' })
-  yield put({ type: 'FETCH_APP_DATA' })
-  yield put({ type: 'FETCH_USERS' })
+  //yield put({ type: 'FETCH_APP_DATA' })
+  //yield put({ type: 'FETCH_USERS' })
 }

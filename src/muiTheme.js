@@ -5,6 +5,10 @@ export default getMuiTheme({
     appBar: 1301,
     drawer: 1300,
   },
+  slider: {
+    trackColor: '#ccc',
+    trackColorSelected: '#ddd',
+  },
   palette: {
     primary1Color: '#d32f2f',
     primary2Color: '#9a0007',

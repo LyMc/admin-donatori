@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Route } from 'react-router-dom'
 
 import AppBar from 'material-ui/AppBar'
 import IconButton from 'material-ui/IconButton'
@@ -8,16 +8,23 @@ import NavigationClose from 'material-ui/svg-icons/navigation/menu'
 import Drawer from 'material-ui/Drawer'
 import MenuItem from 'material-ui/MenuItem'
 
-export default ({ children, isDrawerOpen, toggleDrawer, logout, windowData }) => (
+import HomeScreen from '../containers/HomeScreen'
+import NotificationsScreen from '../containers/NotificationsScreen'
+import ScheduledScreen from '../containers/ScheduledScreen'
+import LocationScreen from '../containers/LocationScreen'
+import LettersScreen from '../containers/LettersScreen'
+
+const MenuLink = ({ label, to, props: { windowData, toggleDrawer, location } }) => <Link to={ to } style={{ textDecoration: 'none' }} onTouchTap={() => windowData.width > 800 || toggleDrawer()}><MenuItem disabled={ location.pathname === to }>{ label }</MenuItem></Link>
+
+export default ({ isDrawerOpen, toggleDrawer, logout, windowData, location }) => (
   <div>
-    <Drawer open={ isDrawerOpen } onRequestChange={ toggleDrawer } containerStyle={{ paddingTop: 64 }}>
-      <Link to="/" style={{ textDecoration: 'none' }} onTouchTap={() => windowData.width > 800 || toggleDrawer()}><MenuItem>Acasă</MenuItem></Link>
-      <Link to="/locations" style={{ textDecoration: 'none' }} onTouchTap={() => windowData.width > 800 || toggleDrawer()}><MenuItem>Locații</MenuItem></Link>
-      <Link to="/users" style={{ textDecoration: 'none' }} onTouchTap={() => windowData.width > 800 || toggleDrawer()}><MenuItem>Utilizatori</MenuItem></Link>
-      <FlatButton primary fullWidth onTouchTap={ logout } style={{
-        position: 'absolute',
-        bottom: 0,
-      }}>Logout</FlatButton>
+    <Drawer open={ isDrawerOpen } onRequestChange={ toggleDrawer } containerStyle={{ paddingTop: 64 }} docked={ windowData.width > 800 }>
+      <MenuLink label="Acasă" to="/" props={{ windowData, toggleDrawer, location }}/>
+      <MenuLink label="Lansare Apel Donare" to="/notifications" props={{ windowData, toggleDrawer, location }}/>
+      <MenuLink label="Lista Programaților" to="/scheduled" props={{ windowData, toggleDrawer, location }}/>
+      <MenuLink label="Contul Centrului Nostru" to="/location" props={{ windowData, toggleDrawer, location }}/>
+      <MenuLink label="Mesajele informative" to="/letters" props={{ windowData, toggleDrawer, location }}/>
+      <FlatButton primary fullWidth onTouchTap={ logout } style={{ position: 'absolute', bottom: 0 }}>Deautentificare</FlatButton>
     </Drawer>
     <AppBar
       title="Admin"
@@ -31,7 +38,11 @@ export default ({ children, isDrawerOpen, toggleDrawer, logout, windowData }) =>
       overflow: 'hidden',
       transition: 'padding-left .4s ease',
     }}>
-      { children }
+      <Route exact path="/" component={ HomeScreen }/>
+      <Route exact path="/notifications" component={ NotificationsScreen }/>
+      <Route exact path="/scheduled" component={ ScheduledScreen }/>
+      <Route exact path="/location" component={ LocationScreen }/>
+      <Route exact path="/letters" component={ LettersScreen }/>
     </div>
   </div>
 )
