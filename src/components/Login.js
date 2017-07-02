@@ -14,7 +14,7 @@ export default ({ loginData, doLogin, changeLoginData }) =>
     }}>
       <h3>Carnetul donatorului de sânge</h3>
       <TextField hintText="E-mail" type="email" fullWidth value={ loginData.email } onChange={ (_, value) => changeLoginData('email', value) } />
-      <TextField hintText="Parola" type="password" fullWidth value={ loginData.password } onChange={ (_, value) => changeLoginData('password', value) } />
+      <TextField hintText="Parola" type="password" fullWidth value={ loginData.password } onChange={ (_, value) => changeLoginData('password', value) } onKeyPress={ event => event.key === 'Enter' && doLogin() } />
       <RaisedButton label="Autentifică-te" primary fullWidth onClick={ doLogin } />
     </div>
   </div>

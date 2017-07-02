@@ -1,4 +1,6 @@
 import { createSelector } from 'reselect'
+import { Map } from 'immutable'
+const empty = new Map()
 
 const selectApp = state => state.get('app')
 export const isDrawerOpen = createSelector(selectApp, app => app.get('openDrawer'))
@@ -23,3 +25,9 @@ export const editLocationData = createSelector(selectEditLocation, data => data.
 
 const selectUsers = state => state.get('users')
 export const usersData = createSelector(selectUsers, data => data)
+
+
+
+export const notifications = state => state.get('notifications') || empty
+export const filteredUsers = state => state.get('filteredUsers')
+export const notificationsLoading = state => state.get('notificationsLoading')

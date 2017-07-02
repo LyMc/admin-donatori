@@ -1,6 +1,7 @@
 import { call, put, take, takeLatest, select } from 'redux-saga/effects'
-import { loginData, editLocationData } from './selectors'
+import { loginData, editLocationData, notifications } from './selectors'
 import firebaseSaga from './firebase-saga'
+//import request from './request'
 
 function* doLogin() {
   const login = yield select(loginData)
@@ -23,7 +24,7 @@ function* syncUser() {
     const { error, user } = yield take(channel)
     if (user) {
       yield put({ type: 'SIGN_IN', payload: { name: user.displayName, email: user.email, uid: user.uid } })
-      yield put({ type: 'FETCH_USER_DATA' })
+      yield put({ type: 'FETCH_NOTIFICATIONS' })
     } else {
       yield put({ type: 'SIGN_OUT' })
     }
@@ -93,6 +94,61 @@ function* removeLocation({ payload }) {
   }
 }
 
+function* fetchNotifications() {
+  const channel = yield call(firebaseSaga.channel, '/notifications')
+  let first = true
+  while (true) {
+    try {
+      const data = yield take(channel)
+      yield put({ type: 'NOTIFICATIONS/SAVE', payload: data || {} })
+      if (first) {
+        first = false
+        yield put({ type: 'COUNT_USERS', payload: [] })
+      }
+    } catch (error) {
+      console.error('fetchNotifications')
+    }
+  }
+}
+function* countUsers({ payload: blood }) {
+  const _notifications = yield select(notifications)
+  const count = _notifications.reduce((acc, userNotifications, uid) => {
+    if (!userNotifications.has('BLOOD') || !userNotifications.get('BLOOD')) {
+      return acc
+    }
+    if (blood.length === 0) {
+      return ++acc
+    }
+    return blood.indexOf(userNotifications.get('BLOOD')) === -1 ? acc : ++acc
+  }, 0)
+  yield put({ type: 'FILTERED_USERS/SET', payload: count })
+}
+function* sendNotification({ payload: notification }) {
+  yield put({ type: 'NOTIFICATIONS/LOADING' })
+  const _notifications = yield select(notifications)
+  let sent = 0
+  for (let [uid, userNotifications] of _notifications) {
+    if (sent >= notification.users || !userNotifications.has('BLOOD') || !userNotifications.get('BLOOD') || (notification.blood.length > 0 && notification.blood.indexOf(userNotifications.get('BLOOD')) === -1)) continue
+    if (userNotifications.has('EXPO_TOKEN') && userNotifications.get('EXPO_TOKEN')) {
+      const requestURL = 'https://exp.host/--/api/v2/push/send'
+      const fetchData = {
+        method: 'POST', headers: {
+          'Content-Type': 'text/plain'
+        }, body: JSON.stringify({ to: userNotifications.get('EXPO_TOKEN'), body: notification.title }), mode: 'no-cors'
+      }
+      try {
+        yield call(fetch, requestURL, fetchData)
+        //yield call(request, requestURL, fetchData)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    yield call(firebaseSaga.create, '/notifications/' + uid + '/', { title: notification.title, message: notification.message })
+    sent++
+  }
+  yield put({ type: 'NOTIFICATIONS/LOADED' })
+}
+
 export default function* rootSaga() {
   yield takeLatest('DO_LOGIN', doLogin)
   yield takeLatest('SYNC_USER', syncUser)
@@ -102,6 +158,11 @@ export default function* rootSaga() {
   yield takeLatest('FETCH_USERS', fetchUsers)
   yield takeLatest('SAVE_LOCATION', saveLocation)
   yield takeLatest('REMOVE_LOCATION', removeLocation)
+
+  yield takeLatest('FETCH_NOTIFICATIONS', fetchNotifications)
+  yield takeLatest('COUNT_USERS', countUsers)
+  yield takeLatest('SEND_NOTIFICATION', sendNotification)
+
   yield put({ type: 'SYNC_USER' })
   //yield put({ type: 'FETCH_APP_DATA' })
   //yield put({ type: 'FETCH_USERS' })

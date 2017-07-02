@@ -56,19 +56,25 @@ const defaultState = fromJS({
       name: '',
       email: '',
     }
-  }
+  },
+  notifications: {
+
+  },
+  filteredUsers: 0,
+  notificationsLoading: false,
 })
 
 export default (state = defaultState, action) => {
+  const { payload } = action
   switch (action.type) {
     case 'APP/TOGGLE_DRAWER':
       return state.updateIn(['app', 'openDrawer'], openDrawer => action.payload === null ? !openDrawer : action.payload)
     case 'APP/RESIZE_WINDOW':
       return state.setIn(['app', 'width'], action.payload.width).setIn(['app', 'height'], action.payload.height)
     case 'SIGN_IN':
-      return state.set('user', fromJS(action.payload)).setIn(['user', 'signed'], true)
+      return state.set('user', fromJS({...action.payload, signed: true }))
     case 'SIGN_OUT':
-      return defaultState.setIn(['user', 'signed'], false)
+      return state.setIn(['user', 'signed'], false)
     case 'CHANGE_LOGIN_DATA':
       return state.setIn(['login', action.payload.field], action.payload.value)
     case 'RESET_LOGIN_DATA':
@@ -85,6 +91,15 @@ export default (state = defaultState, action) => {
       return state.set('editLocation', state.getIn(['locations', action.payload.city, action.payload.key])).setIn(['editLocation', 'city'], action.payload.city).setIn(['editLocation', 'key'], action.payload.key).setIn(['editLocation', 'open'], true)
     case 'EDIT_LOCATION/RESET':
       return state.set('editLocation', defaultState.get('editLocation'))
+
+    case 'NOTIFICATIONS/SAVE':
+      return state.set('notifications', fromJS(payload))
+    case 'FILTERED_USERS/SET':
+      return state.set('filteredUsers', payload)
+    case 'NOTIFICATIONS/LOADING':
+      return state.set('notificationsLoading', true)
+    case 'NOTIFICATIONS/LOADED':
+      return state.set('notificationsLoading', false)
     default:
       return state
   }
