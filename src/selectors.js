@@ -8,9 +8,10 @@ export const windowData = createSelector(selectApp, app => ({ width: app.get('wi
 
 const selectUser = state => state.get('user')
 export const userData = createSelector(selectUser, data => ({
-  signed: data.get('signed'), name: data.get('name'), email: data.get('email'), uid: data.get('uid'),
+  signed: data.get('signed'), name: data.get('name'), email: data.get('email'), uid: data.get('uid'), admin: data.get('admin'),
 }))
 export const isUserSignedIn = createSelector(userData, data => data.signed)
+export const userAdmin = createSelector(userData, data => data.admin)
 
 const selectLogin = state => state.get('login')
 export const loginData = createSelector(selectLogin, data => ({
@@ -31,3 +32,7 @@ export const usersData = createSelector(selectUsers, data => data)
 export const notifications = state => state.get('notifications') || empty
 export const filteredUsers = state => state.get('filteredUsers')
 export const notificationsLoading = state => state.get('notificationsLoading')
+
+export const snacks = state => state.get('snacks')
+
+export const location = state => state.get('location')

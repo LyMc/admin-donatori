@@ -21,9 +21,8 @@ export default class Notifications extends React.Component {
     this.state = {
       blood: new Set(),
       users: props.filteredUsers || 0,
-      title: 'Este nevoie de sânge',
-      message: `Bună %NUME%,
-Este nevoie de sânge %GRUPA%%RH% în Centrul de transfuzie sanguină București`,
+      title: '',
+      message: '',
       lastBloodCount: -1,
     }
     props.count([])
@@ -31,6 +30,13 @@ Este nevoie de sânge %GRUPA%%RH% în Centrul de transfuzie sanguină București
   componentWillReceiveProps(nextProps) {
     if (this.props.filteredUsers !== nextProps.filteredUsers) {
       this.setState({ users: Math.max(Math.round(this.props.filteredUsers ? this.state.users / this.props.filteredUsers * nextProps.filteredUsers : 0), 1) })
+    }
+    if (this.props.notificationsLoading && !nextProps.notificationsLoading) {
+      this.setState({
+        blood: new Set(),
+        title: '',
+        message: '',
+      })
     }
   }
   componentDidUpdate() {
@@ -68,7 +74,7 @@ Este nevoie de sânge %GRUPA%%RH% în Centrul de transfuzie sanguină București
             Se pot folosi variabile ce vor fi înlocuite cu datele utilizatorului: %NUME%, %GRUPA%, %RH%
           </div>
           <div>
-            <RaisedButton label="Trimite" primary onTouchTap={ () => send({ blood: blood.toArray(), users, title, message }) } disabled={ notificationsLoading }/>
+            <RaisedButton label={ notificationsLoading ? 'Se trimite' : 'Trimite' } primary onTouchTap={ () => send({ blood: blood.toArray(), users, title, message }) } disabled={ users === 0 || notificationsLoading }/>
           </div>
         </Paper>
       </div>

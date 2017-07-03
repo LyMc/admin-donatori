@@ -3,33 +3,46 @@ import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 
-export default () =>
-  <div style={{ padding: '15px 0' }}>
-    <Paper style={{ padding: 15 }}>
-      <div>
-        <TextField floatingLabelText="Nume" fullWidth/>
-        <TextField floatingLabelText="Oraș" fullWidth/>
-        <TextField floatingLabelText="Stradă" fullWidth/>
-        <TextField floatingLabelText="Telefon" fullWidth/>
-        <TextField floatingLabelText="Website" fullWidth/>
-        <TextField floatingLabelText="Link către hartă" fullWidth/>
-        </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <TextField floatingLabelText="Latitudine" style={{ width: '49%' }}/>
-        <TextField floatingLabelText="Longitudine" style={{ width: '49%' }}/>
+const Field = ({ label, type, props, style }) => (
+  <TextField floatingLabelText={ label } fullWidth value={ props.location.get(type) } onChange={ (_, value) => props.change(type, ['latitude', 'longitude'].indexOf(type) === -1 ? value : +value) } style={ style }/>
+)
+const getDay = (key) => key === 6 ? 0 : key + 1
+const hoursValue = (hours, key) => hours.split(';')[getDay(key)]
+const changeHours = (hours, value, key, change) => {
+  let byDay = hours.split(';')
+  byDay[getDay(key)] = value
+  change('hours', byDay.join(';'))
+}
+export default class Location extends React.Component {
+  render() {
+    const { location, change, save } = this.props
+    const props = { location, change }
+    return (
+      <div style={{ padding: '15px 0' }}>
+        <Paper style={{ padding: 15 }}>
+          <div>
+            <Field label="Nume" type="name" props={ props }/>
+            <Field label="Oraș" type="city" props={ props }/>
+            <Field label="Stradă" type="address" props={ props }/>
+            <Field label="Telefon" type="phone" props={ props }/>
+            <Field label="Website" type="website" props={ props }/>
+            <Field label="Link către hartă" type="addressLink" props={ props }/>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Field label="Latitudine" type="latitude" props={ props } style={{ width: '49%' }}/>
+            <Field label="Longitudine" type="longitude" props={ props } style={{ width: '49%' }}/>
+          </div>
+          <div style={{ marginTop: 15 }}>Program</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+            { ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică'].map((day, key) => (
+              <TextField key={ key } floatingLabelText={ day } style={{ width: 130 }} value={ hoursValue(location.get('hours'), key) } onChange={ (_, value) => changeHours(location.get('hours'), value, key, change) }/>
+            )) }
+          </div>
+          <div>
+            <RaisedButton label="Actualizează" primary onTouchTap={ save }/>
+          </div>
+        </Paper>
       </div>
-      <div style={{ marginTop: 15 }}>Program</div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-        <TextField floatingLabelText="Luni" style={{ width: 130 }}/>
-        <TextField floatingLabelText="Marți" style={{ width: 130 }}/>
-        <TextField floatingLabelText="Miercuri" style={{ width: 130 }}/>
-        <TextField floatingLabelText="Joi" style={{ width: 130 }}/>
-        <TextField floatingLabelText="Vineri" style={{ width: 130 }}/>
-        <TextField floatingLabelText="Sâmbătă" style={{ width: 130 }}/>
-        <TextField floatingLabelText="Duminică" style={{ width: 130 }}/>
-      </div>
-      <div>
-        <RaisedButton label="Salvează" primary/>
-      </div>
-    </Paper>
-  </div>
+    )
+  }
+}

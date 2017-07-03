@@ -1,5 +1,5 @@
 import { call, put, take, takeLatest, select } from 'redux-saga/effects'
-import { loginData, editLocationData, notifications } from './selectors'
+import { loginData, notifications, location, userAdmin } from './selectors'
 import firebaseSaga from './firebase-saga'
 //import request from './request'
 
@@ -23,8 +23,12 @@ function* syncUser() {
   while (true) {
     const { error, user } = yield take(channel)
     if (user) {
-      yield put({ type: 'SIGN_IN', payload: { name: user.displayName, email: user.email, uid: user.uid } })
-      yield put({ type: 'FETCH_NOTIFICATIONS' })
+      const admin = yield call(firebaseSaga.get, 'admins/' + user.uid)
+      if (admin) {
+        yield put({ type: 'SIGN_IN', payload: { name: user.displayName, email: user.email, uid: user.uid, admin } })
+        yield put({ type: 'FETCH_NOTIFICATIONS' })
+        yield put({ type: 'FETCH_LOCATION', payload: admin })
+      }
     } else {
       yield put({ type: 'SIGN_OUT' })
     }
@@ -63,27 +67,6 @@ function* fetchUsers() {
     } catch (error) {
       console.log('error fetch data', error)
     }
-  }
-}
-function* saveLocation() {
-  const location = yield select(editLocationData)
-  const path = '/app/locations/' + location.city + '/'
-  let data = { name: location.name }
-  if (location.address) data.address = location.address
-  if (location.addressLink) data.addressLink = location.addressLink
-  if (location.program) data.program = location.program
-  if (location.phone) data.phone = location.phone
-  if (location.link) data.link = location.link
-  if (location.initialRegion) data.initialRegion = location.initialRegion
-  yield put({ type: 'EDIT_LOCATION/RESET' })
-  try {
-    if (location.key) {
-      yield call(firebaseSaga.update, path + location.key, data)
-    } else {
-      yield call(firebaseSaga.create, path, data)
-    }
-  } catch (error) {
-    console.log('error fetch data', error)
   }
 }
 function* removeLocation({ payload }) {
@@ -147,6 +130,28 @@ function* sendNotification({ payload: notification }) {
     sent++
   }
   yield put({ type: 'NOTIFICATIONS/LOADED' })
+  yield put({ type: 'SNACKS/ADD', payload: sent === 1 ? 'O notificare a fost trimisă cu succes' : sent + ' notificări au fost trimise cu succes' })
+}
+function* fetchLocation({ payload: locationKey }) {
+  const channel = yield call(firebaseSaga.channel, '/app/locations/' + locationKey)
+  while (true) {
+    try {
+      const data = yield take(channel)
+      yield put({ type: 'LOCATION/SET', payload: data || {} })
+    } catch (error) {
+      console.error('fetchLocation')
+    }
+  }
+}
+function* saveLocation() {
+  const _location = yield select(location)
+  const locationKey = yield select(userAdmin)
+  try {
+    yield call(firebaseSaga.update, '/app/locations/' + locationKey, _location.toObject())
+    yield put({ type: 'SNACKS/ADD', payload: 'Informațiile au fost actualizate' })
+  } catch (error) {
+    console.error('saveLocation', error)
+  }
 }
 
 export default function* rootSaga() {
@@ -156,12 +161,13 @@ export default function* rootSaga() {
   yield takeLatest('SIGN_UP', signUp)
   yield takeLatest('FETCH_APP_DATA', fetchAppData)
   yield takeLatest('FETCH_USERS', fetchUsers)
-  yield takeLatest('SAVE_LOCATION', saveLocation)
   yield takeLatest('REMOVE_LOCATION', removeLocation)
 
   yield takeLatest('FETCH_NOTIFICATIONS', fetchNotifications)
   yield takeLatest('COUNT_USERS', countUsers)
   yield takeLatest('SEND_NOTIFICATION', sendNotification)
+  yield takeLatest('FETCH_LOCATION', fetchLocation)
+  yield takeLatest('SAVE_LOCATION', saveLocation)
 
   yield put({ type: 'SYNC_USER' })
   //yield put({ type: 'FETCH_APP_DATA' })

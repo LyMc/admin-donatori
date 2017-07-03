@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton'
 import NavigationClose from 'material-ui/svg-icons/navigation/menu'
 import Drawer from 'material-ui/Drawer'
 import MenuItem from 'material-ui/MenuItem'
+import Snackbar from 'material-ui/Snackbar'
 
 import HomeScreen from '../containers/HomeScreen'
 import NotificationsScreen from '../containers/NotificationsScreen'
@@ -16,7 +17,7 @@ import LettersScreen from '../containers/LettersScreen'
 
 const MenuLink = ({ label, to, props: { windowData, toggleDrawer, location } }) => <Link to={ to } style={{ textDecoration: 'none' }} onTouchTap={() => windowData.width > 800 || toggleDrawer()}><MenuItem disabled={ location.pathname === to }>{ label }</MenuItem></Link>
 
-export default ({ isDrawerOpen, toggleDrawer, logout, windowData, location }) => (
+export default ({ isDrawerOpen, toggleDrawer, logout, windowData, location, snacks, removeSnack }) => (
   <div>
     <Drawer open={ isDrawerOpen } onRequestChange={ toggleDrawer } containerStyle={{ paddingTop: 64 }} docked={ windowData.width > 800 }>
       <MenuLink label="Acasă" to="/" props={{ windowData, toggleDrawer, location }}/>
@@ -26,6 +27,12 @@ export default ({ isDrawerOpen, toggleDrawer, logout, windowData, location }) =>
       <MenuLink label="Mesajele informative" to="/letters" props={{ windowData, toggleDrawer, location }}/>
       <FlatButton primary fullWidth onTouchTap={ logout } style={{ position: 'absolute', bottom: 0 }}>Deautentificare</FlatButton>
     </Drawer>
+    <Snackbar
+      open={ snacks.size > 0 }
+      message={ snacks.size > 0 ? snacks.first() : '' }
+      autoHideDuration={ 4000 }
+      onRequestClose={ removeSnack }
+    />
     <AppBar
       title="Admin"
       iconElementLeft={ <IconButton onClick={() => toggleDrawer()}><NavigationClose/></IconButton> }

@@ -3,15 +3,16 @@ import { connect } from 'react-redux'
 import { createStructuredSelector } from 'reselect'
 import { BrowserRouter, Route } from 'react-router-dom'
 
-import { isDrawerOpen, isUserSignedIn, windowData } from '../selectors'
+import { isDrawerOpen, isUserSignedIn, windowData, snacks } from '../selectors'
 
 import Loading from '../components/Loading'
 import LoginScreen from './LoginScreen'
 import App from '../components/App'
 
-const AppRoute = connect(createStructuredSelector({ isDrawerOpen, windowData }), dispatch => ({
+const AppRoute = connect(createStructuredSelector({ isDrawerOpen, windowData, snacks }), dispatch => ({
   toggleDrawer: (payload = null) => dispatch({ type: 'APP/TOGGLE_DRAWER', payload }),
   logout: () => dispatch({ type: 'DO_LOGOUT' }),
+  removeSnack: () => dispatch({ type: 'SNACKS/REMOVE' }),
 }))(App)
 
 class AppScreen extends React.Component {

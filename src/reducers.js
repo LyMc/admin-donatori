@@ -11,6 +11,7 @@ const defaultState = fromJS({
     name: '',
     email: '',
     uid: '',
+    admin: '',
   },
   login: {
     email: '',
@@ -57,11 +58,21 @@ const defaultState = fromJS({
       email: '',
     }
   },
-  notifications: {
-
-  },
+  notifications: {},
   filteredUsers: 0,
   notificationsLoading: false,
+  snacks: [],
+  location: {
+    name: '',
+    city: '',
+    address: '',
+    phone: '',
+    website: '',
+    addressLink:'',
+    latitude: 0,
+    longitude: 0,
+    hours: ';;;;;;',
+  }
 })
 
 export default (state = defaultState, action) => {
@@ -100,6 +111,14 @@ export default (state = defaultState, action) => {
       return state.set('notificationsLoading', true)
     case 'NOTIFICATIONS/LOADED':
       return state.set('notificationsLoading', false)
+    case 'SNACKS/ADD':
+      return state.update('snacks', snacks => snacks.push(action.payload))
+    case 'SNACKS/REMOVE':
+      return state.update('snacks', snacks => snacks.shift())
+    case 'LOCATION/SET':
+      return state.set('location', fromJS(payload))
+    case 'LOCATION/CHANGE':
+      return state.setIn(['location', payload.field], payload.value)
     default:
       return state
   }
