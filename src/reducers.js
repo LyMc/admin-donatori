@@ -72,7 +72,8 @@ const defaultState = fromJS({
     latitude: 0,
     longitude: 0,
     hours: ';;;;;;',
-  }
+  },
+  letters: {},
 })
 
 export default (state = defaultState, action) => {
@@ -119,6 +120,8 @@ export default (state = defaultState, action) => {
       return state.set('location', fromJS(payload))
     case 'LOCATION/CHANGE':
       return state.setIn(['location', payload.field], payload.value)
+    case 'LETTERS/SET':
+      return state.set('letters', fromJS(payload))
     default:
       return state
   }

@@ -36,3 +36,5 @@ export const notificationsLoading = state => state.get('notificationsLoading')
 export const snacks = state => state.get('snacks')
 
 export const location = state => state.get('location')
+
+export const letters = state => state.get('letters')

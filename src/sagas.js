@@ -28,6 +28,7 @@ function* syncUser() {
         yield put({ type: 'SIGN_IN', payload: { name: user.displayName, email: user.email, uid: user.uid, admin } })
         yield put({ type: 'FETCH_NOTIFICATIONS' })
         yield put({ type: 'FETCH_LOCATION', payload: admin })
+        yield put({ type: 'FETCH_LETTERS' })
       }
     } else {
       yield put({ type: 'SIGN_OUT' })
@@ -137,7 +138,9 @@ function* fetchLocation({ payload: locationKey }) {
   while (true) {
     try {
       const data = yield take(channel)
-      yield put({ type: 'LOCATION/SET', payload: data || {} })
+      if (data) {
+        yield put({ type: 'LOCATION/SET', payload: data })
+      }
     } catch (error) {
       console.error('fetchLocation')
     }
@@ -151,6 +154,17 @@ function* saveLocation() {
     yield put({ type: 'SNACKS/ADD', payload: 'Informațiile au fost actualizate' })
   } catch (error) {
     console.error('saveLocation', error)
+  }
+}
+function* fetchLetters() {
+  const channel = yield call(firebaseSaga.channel, '/app/letters/')
+  while (true) {
+    try {
+      const data = yield take(channel)
+      yield put({ type: 'LETTERS/SET', payload: data || {} })
+    } catch (error) {
+      console.error('fetchLetters')
+    }
   }
 }
 
@@ -168,6 +182,7 @@ export default function* rootSaga() {
   yield takeLatest('SEND_NOTIFICATION', sendNotification)
   yield takeLatest('FETCH_LOCATION', fetchLocation)
   yield takeLatest('SAVE_LOCATION', saveLocation)
+  yield takeLatest('FETCH_LETTERS', fetchLetters)
 
   yield put({ type: 'SYNC_USER' })
   //yield put({ type: 'FETCH_APP_DATA' })

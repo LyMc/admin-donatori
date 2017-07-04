@@ -17,23 +17,35 @@ const letters = [{
   content: "Înainte de a veni la centrul de donare se recomandă să nu fumați, să nu consumați alcool, mâncăruri bogate în grăsimi sau dulciuri concentrate. Fi-ți bine hidratat, odihnit și asigurați-vă că aveți o stare de igiena corespunzătoare. Nu luați medicamente anticoagulante, antidiabetice sau aspirină.",
 }]
 
-export default () =>
-  <div style={{ padding: '15px 0' }}>
-    { letters.map((letter, key) => <Card key={ key } style={{ marginBottom: 15 }}>
-      <CardTitle title={ letter.title }/>
-      { key !== 0 && <CardText>{ letter.content }</CardText> }
-      { key === 0 && <CardText>
-        <div>
-          <TextField hintText="Titlu" fullWidth value={ letter.title }/>
-          <TextField hintText="Mesaj" fullWidth multiLine rows={ 5 } value={ letter.content }/>
-        </div>
-      </CardText> }
-      <CardActions>
-        <RaisedButton label={ key === 0 ? 'Salvează' : 'Editează' } primary/>
-        <FlatButton label="Sterge" primary/>
-      </CardActions>
-    </Card>) }
-    <FloatingActionButton style={{ position: 'fixed', bottom: 15, right: 15 }}>
-      <ContentAdd />
-    </FloatingActionButton>
-  </div>
+export default class Letters extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      edit: -1,
+    }
+  }
+  render() {
+    console.log(this.props.letters.toJS())
+    return (
+      <div style={{ padding: '15px 0' }}>
+        { letters.map((letter, key) => <Card key={ key } style={{ marginBottom: 15 }}>
+          <CardTitle title={ letter.title }/>
+          { key !== 0 && <CardText>{ letter.content }</CardText> }
+          { key === 0 && <CardText>
+            <div>
+              <TextField hintText="Titlu" fullWidth value={ letter.title }/>
+              <TextField hintText="Mesaj" fullWidth multiLine rows={ 5 } value={ letter.content }/>
+            </div>
+          </CardText> }
+          <CardActions>
+            <RaisedButton label={ key === 0 ? 'Salvează' : 'Editează' } primary/>
+            <FlatButton label="Sterge" primary/>
+          </CardActions>
+        </Card>) }
+        <FloatingActionButton style={{ position: 'fixed', bottom: 15, right: 15 }}>
+          <ContentAdd />
+        </FloatingActionButton>
+      </div>
+    )
+  }
+}
