@@ -8,7 +8,7 @@ import { Set } from 'immutable'
 
 import muiTheme from '../muiTheme'
 
-const bloodType = ['O', 'A', 'B', 'AB']
+const bloodType = ['0', 'A', 'B', 'AB']
 const RH = ['+', '-']
 
 const toggleSet = (element, value) => {
