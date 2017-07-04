@@ -9,7 +9,7 @@ import Drawer from 'material-ui/Drawer'
 import MenuItem from 'material-ui/MenuItem'
 import Snackbar from 'material-ui/Snackbar'
 
-import HomeScreen from '../containers/HomeScreen'
+//import HomeScreen from '../containers/HomeScreen'
 import NotificationsScreen from '../containers/NotificationsScreen'
 import ScheduledScreen from '../containers/ScheduledScreen'
 import LocationScreen from '../containers/LocationScreen'
@@ -20,8 +20,8 @@ const MenuLink = ({ label, to, props: { windowData, toggleDrawer, location } }) 
 export default ({ isDrawerOpen, toggleDrawer, logout, windowData, location, snacks, removeSnack }) => (
   <div>
     <Drawer open={ isDrawerOpen } onRequestChange={ toggleDrawer } containerStyle={{ paddingTop: 64 }} docked={ windowData.width > 800 }>
-      <MenuLink label="Acasă" to="/" props={{ windowData, toggleDrawer, location }}/>
-      <MenuLink label="Lansare Apel Donare" to="/notifications" props={{ windowData, toggleDrawer, location }}/>
+      {/*<MenuLink label="Acasă" to="/" props={{ windowData, toggleDrawer, location }}/>*/}
+      <MenuLink label="Lansare Apel Donare" to="/" props={{ windowData, toggleDrawer, location }}/>
       <MenuLink label="Lista Programaților" to="/scheduled" props={{ windowData, toggleDrawer, location }}/>
       <MenuLink label="Contul Centrului Nostru" to="/location" props={{ windowData, toggleDrawer, location }}/>
       <MenuLink label="Mesajele informative" to="/letters" props={{ windowData, toggleDrawer, location }}/>
@@ -33,20 +33,18 @@ export default ({ isDrawerOpen, toggleDrawer, logout, windowData, location, snac
       autoHideDuration={ 4000 }
       onRequestClose={ removeSnack }
     />
-    <AppBar
-      title="Admin"
-      iconElementLeft={ <IconButton onClick={() => toggleDrawer()}><NavigationClose/></IconButton> }
-    />
+    <AppBar title="Admin" iconElementLeft={ <IconButton onClick={() => toggleDrawer()}><NavigationClose/></IconButton> } style={{ position: 'fixed' }}/>
     <div style={{
       maxWidth: 1200,
       margin: '0 auto',
       paddingLeft: isDrawerOpen ? 270 : 15,
       paddingRight: 15,
+      paddingTop: 64,
       overflow: 'hidden',
       transition: 'padding-left .4s ease',
     }}>
-      <Route exact path="/" component={ HomeScreen }/>
-      <Route exact path="/notifications" component={ NotificationsScreen }/>
+      <Route exact path="/" component={ NotificationsScreen }/>
+      {/*<Route exact path="/notifications" component={ NotificationsScreen }/>*/}
       <Route exact path="/scheduled" component={ ScheduledScreen }/>
       <Route exact path="/location" component={ LocationScreen }/>
       <Route exact path="/letters" component={ LettersScreen }/>

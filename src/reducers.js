@@ -52,12 +52,6 @@ const defaultState = fromJS({
       longitudeDelta: 0,
     }
   },
-  users: {
-    'key123': {
-      name: '',
-      email: '',
-    }
-  },
   notifications: {},
   filteredUsers: 0,
   notificationsLoading: false,
@@ -74,6 +68,7 @@ const defaultState = fromJS({
     hours: ';;;;;;',
   },
   letters: {},
+  users: {},
 })
 
 export default (state = defaultState, action) => {
@@ -93,8 +88,6 @@ export default (state = defaultState, action) => {
       return state.set('login', defaultState.get('login'))
     case 'LOCATIONS/SAVE':
       return state.set('locations', fromJS(action.payload))
-    case 'USERS/SAVE':
-      return state.set('users', fromJS(action.payload))
     case 'EDIT_LOCATION/CHANGE':
       return state.setIn(['editLocation', action.payload.field], action.payload.value)
     case 'EDIT_LOCATION/CHANGE_IN':
@@ -122,6 +115,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['location', payload.field], payload.value)
     case 'LETTERS/SET':
       return state.set('letters', fromJS(payload))
+    case 'USERS/SET':
+      return state.set('users', fromJS(payload))
     default:
       return state
   }

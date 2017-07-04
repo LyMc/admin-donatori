@@ -5,46 +5,47 @@ import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
 import ContentAdd from 'material-ui/svg-icons/content/add'
-
-const letters = [{
-  title: "Vino să donezi, oferă o șansă!",
-  content: "Donarea de sânge este un gest altruist care salvează vieți. Fiecare dintre noi poate fi un salvator de vieți, poate oferi unor persoane șansa zilei de mâine și speranța la sănătate. \n\n Nevoia de sânge este permanentă deoarece toate intervențiile chirurgicale majore (politraumatisme, bolile oncologice, transplantul de măduvă sau de ficat etc) nu s-ar putea realiza fără transfuzii de sânge. \n\n Donatorii de sânge sunt atent monitorizați din punct de vedere a stării de sănătate, iar actul de donare nu reprezintă nici-un risc dacă acesta este sănătos. În plus, studii recente au demonstrat că donarea de sânge reduce cu 30% riscul apariției bolilor cardiovasculare prin scăderea tensiunii arteriale și că donatorii de sânge trăiesc mai mult decât media populației."
-}, {
-  title: "Cum donezi?",
-  content: "Puteți dona sânge o dată la trei luni în centrele de transfuzii sau la centrele mobile de donare aflate în campusuri universitare, instituții, întreprinderi etc. Aici găsiți centrele de transfuzii din fiecare județ.",
-}, {
-  title: "Recomandări înainte de donare",
-  content: "Înainte de a veni la centrul de donare se recomandă să nu fumați, să nu consumați alcool, mâncăruri bogate în grăsimi sau dulciuri concentrate. Fi-ți bine hidratat, odihnit și asigurați-vă că aveți o stare de igiena corespunzătoare. Nu luați medicamente anticoagulante, antidiabetice sau aspirină.",
-}]
+import Dialog from 'material-ui/Dialog'
+import ReactMarkdown from 'react-markdown'
 
 export default class Letters extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      edit: -1,
+      editing: '',
+      title: '',
+      content: '',
     }
   }
   render() {
-    console.log(this.props.letters.toJS())
+    const { letters, save, add, remove } = this.props
+    const { editing, title, content } = this.state
     return (
-      <div style={{ padding: '15px 0' }}>
+      <div style={{ padding: '15px 0 65px' }}>
         { letters.map((letter, key) => <Card key={ key } style={{ marginBottom: 15 }}>
-          <CardTitle title={ letter.title }/>
-          { key !== 0 && <CardText>{ letter.content }</CardText> }
-          { key === 0 && <CardText>
+          { key !== editing && <CardTitle title={ letter.get('title') }/> }
+          { key !== editing && <CardText><ReactMarkdown source={ letter.get('content') }/></CardText> }
+          { key === editing && <CardText>
             <div>
-              <TextField hintText="Titlu" fullWidth value={ letter.title }/>
-              <TextField hintText="Mesaj" fullWidth multiLine rows={ 5 } value={ letter.content }/>
+              <TextField hintText="Titlu" fullWidth value={ title } onChange={ (_, title) => this.setState({ title }) }/>
+              <TextField hintText="Mesaj" fullWidth multiLine rows={ 5 } value={ content } onChange={ (_, content) => this.setState({ content }) }/>
             </div>
           </CardText> }
           <CardActions>
-            <RaisedButton label={ key === 0 ? 'Salvează' : 'Editează' } primary/>
-            <FlatButton label="Sterge" primary/>
+            <RaisedButton label={ key === editing ? 'Salvează' : 'Editează' } primary onTouchTap={ () => key === editing ? save(key, title, content) && this.setState({ editing: '', title: '', content: '' }) : this.setState({ editing: key, title: letter.get('title'), content: letter.get('content') }) }/>
+            <FlatButton label="Sterge" primary onTouchTap={ () => remove(key) }/>
           </CardActions>
-        </Card>) }
-        <FloatingActionButton style={{ position: 'fixed', bottom: 15, right: 15 }}>
+        </Card>).toArray() }
+        <FloatingActionButton style={{ position: 'fixed', bottom: 15, right: 15 }} onTouchTap={ () => this.setState({ editing: 'add', title: '', content: '' }) }>
           <ContentAdd />
         </FloatingActionButton>
+        <Dialog title="Adaugă mesaj nou" open={ editing === 'add' } onRequestClose={ () => this.setState({ editing: '', title: '', content: '' }) } actions={[
+          <RaisedButton primary label="Salvează" onTouchTap={ () => add(title, content) && this.setState({ editing: '', title: '', content: '' }) }/>,
+          <FlatButton primary label="Anulează" onTouchTap={ () => this.setState({ editing: '', title: '', content: '' }) } style={{ margin: '0 15px' }}/>
+        ]}>
+          <TextField hintText="Titlu" fullWidth value={ title } onChange={ (_, title) => this.setState({ title }) }/>
+          <TextField hintText="Mesaj" fullWidth multiLine rows={ 5 } value={ content } onChange={ (_, content) => this.setState({ content }) }/>
+        </Dialog>
       </div>
     )
   }

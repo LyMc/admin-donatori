@@ -29,6 +29,7 @@ function* syncUser() {
         yield put({ type: 'FETCH_NOTIFICATIONS' })
         yield put({ type: 'FETCH_LOCATION', payload: admin })
         yield put({ type: 'FETCH_LETTERS' })
+        yield put({ type: 'FETCH_USERS' })
       }
     } else {
       yield put({ type: 'SIGN_OUT' })
@@ -54,17 +55,6 @@ function* fetchAppData() {
     try {
       const data = yield take(channel)
       yield put({ type: 'LOCATIONS/SAVE', payload: (data && data.locations) || {} })
-    } catch (error) {
-      console.log('error fetch data', error)
-    }
-  }
-}
-function* fetchUsers() {
-  const channel = yield call(firebaseSaga.channel, '/users')
-  while (true) {
-    try {
-      const data = yield take(channel)
-      yield put({ type: 'USERS/SAVE', payload: data || {} })
     } catch (error) {
       console.log('error fetch data', error)
     }
@@ -167,6 +157,49 @@ function* fetchLetters() {
     }
   }
 }
+function* saveLetter({ payload: { key, title, content } }) {
+  try {
+    yield call(firebaseSaga.update, '/app/letters/' + key, { title, content })
+    yield put({ type: 'SNACKS/ADD', payload: 'Mesajul a fost actualizat' })
+  } catch (error) {
+    console.error('saveLetter')
+  }
+}
+function* addLetter({ payload: { title, content } }) {
+  try {
+    yield call(firebaseSaga.create, '/app/letters/', { title, content })
+    yield put({ type: 'SNACKS/ADD', payload: 'Mesajul a fost adăugat' })
+  } catch (error) {
+    console.error('addLetter')
+  }
+}
+function* removeLetter({ payload: key }) {
+  try {
+    yield call(firebaseSaga.delete, '/app/letters/' + key)
+    yield put({ type: 'SNACKS/ADD', payload: 'Mesajul a fost șters' })
+  } catch (error) {
+    console.error('removeLetter')
+  }
+}
+function* fetchUsers() {
+  const channel = yield call(firebaseSaga.channel, '/users')
+  while (true) {
+    try {
+      const data = yield take(channel)
+      yield put({ type: 'USERS/SET', payload: data || {} })
+    } catch (error) {
+      console.error('fetchUsers')
+    }
+  }
+}
+function* changeUserStatus({ payload: { uid, visitKey, status } }) {
+  try {
+    yield call(firebaseSaga.update, '/users/' + uid + '/visits/' + visitKey + '/status/', status)
+    yield put({ type: 'SNACKS/ADD', payload: 'Programarea a fost actualizată' })
+  } catch (error) {
+    console.error('changeUserStatus')
+  }
+}
 
 export default function* rootSaga() {
   yield takeLatest('DO_LOGIN', doLogin)
@@ -174,7 +207,6 @@ export default function* rootSaga() {
   yield takeLatest('DO_LOGOUT', doLogout)
   yield takeLatest('SIGN_UP', signUp)
   yield takeLatest('FETCH_APP_DATA', fetchAppData)
-  yield takeLatest('FETCH_USERS', fetchUsers)
   yield takeLatest('REMOVE_LOCATION', removeLocation)
 
   yield takeLatest('FETCH_NOTIFICATIONS', fetchNotifications)
@@ -183,6 +215,11 @@ export default function* rootSaga() {
   yield takeLatest('FETCH_LOCATION', fetchLocation)
   yield takeLatest('SAVE_LOCATION', saveLocation)
   yield takeLatest('FETCH_LETTERS', fetchLetters)
+  yield takeLatest('SAVE_LETTER', saveLetter)
+  yield takeLatest('ADD_LETTER', addLetter)
+  yield takeLatest('REMOVE_LETTER', removeLetter)
+  yield takeLatest('FETCH_USERS', fetchUsers)
+  yield takeLatest('CHANGE_USER_STATUS', changeUserStatus)
 
   yield put({ type: 'SYNC_USER' })
   //yield put({ type: 'FETCH_APP_DATA' })

@@ -38,3 +38,5 @@ export const snacks = state => state.get('snacks')
 export const location = state => state.get('location')
 
 export const letters = state => state.get('letters')
+
+export const users = state => state.get('users')
