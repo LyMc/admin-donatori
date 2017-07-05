@@ -61,7 +61,7 @@ export default class Scheduled extends React.Component {
         </BottomNavigation>
         { users.filter(this.filterUsers).map((user, key) => (
           <Card key={ key } style={{ marginBottom: 15 }}>
-            <CardHeader actAsExpander showExpandableButton title={ user.getIn(['settings', 'name']) } subtitle={ user.get('visits').filter(this.filterVisits).first().get('status') + ' | ' + moment(user.get('visits').filter(this.filterVisits).first().get('date')).format(tab === 0 ? 'HH:mm' : 'D MMMM') }/>
+            <CardHeader actAsExpander showExpandableButton title={ user.getIn(['settings', 'name']) } subtitle={ user.get('visits').filter(this.filterVisits).first().get('status') + ' | ' + moment(user.get('visits').filter(this.filterVisits).first().get('date')).utc().format(tab === 0 ? 'HH:mm' : 'D MMMM') }/>
             <CardText expandable>
               <div>Grup Sanguin: { user.getIn(['profile', 'blood']) + user.getIn(['profile', 'rh']) }</div>
               <div>Greutate: { user.getIn(['profile', 'weight']) } kg</div>
